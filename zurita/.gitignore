@@ -1,3 +1,4 @@
-data/*
 *.pdf
 submit/*
+historico.*
+.DS_Store
