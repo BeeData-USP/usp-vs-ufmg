@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
 
-df = pd.read_csv("data/faturamento_consolidade_sem_feriado.csv")
+df = pd.read_csv("data/faturamento_consolidade_sem_feriado.csv", parse_dates=["datetime"])
 print("Exibindo df..")
 print(df.head())
 dummies_df = pd.get_dummies(df, columns=["feature_05", "feature_01", "feature_02", "feature_11", "feature_12"])
@@ -20,6 +20,9 @@ str_cols.append("receita")
 str_cols.append("receita_trim1")
 str_cols.append("receita_trim2")
 str_cols.append("receita_trim3")
+str_cols.append('categoria_loja')
+str_cols.append('receita_media')
+str_cols.append('receita_ano_passado')
 
 X_train = train_df.drop(str_cols, axis=1, errors="ignore")
 y_train = train_df["receita"]
