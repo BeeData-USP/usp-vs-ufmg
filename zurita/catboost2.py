@@ -1,14 +1,17 @@
-import xgboost as xgb
+#import xgboost as xgb
 import pandas as pd
 from datetime import date
 from catboost import CatBoostRegressor, Pool
-
+from sklearn.model_selection import TimeSeriesSplit
 
 df = pd.read_csv("data/faturamento_consolidade_com_feriado_e_receita_da_categoria.csv", parse_dates=["datetime"])
 
-grid = {'learning_rate': [0.03, 0.1],
+grid = {'learning_rate': [0.03, 0.05, 0.1],
         'depth': [4, 6, 10],
-        'l2_leaf_reg': [1, 3, 5, 7, 9]}
+        'l2_leaf_reg': [1, 3, 5, 7, 9],
+        'n_estimators': [100, 250, 500],
+        #'max_leaves': [i for i in range(2, 10)]
+}
 
 print("Exibindo df..")
 print(df.head())
@@ -43,12 +46,13 @@ y_test = test_df["receita"]
 
 
 
+print(grid)
 cb_model = CatBoostRegressor(iterations=1500,
                              learning_rate=0.05,
                              depth=10,
                              eval_metric='RMSE',
                              random_seed = 42,
-                             thread_count=8,
+                             thread_count=16,
                              bagging_temperature = 0.2,
                              od_type='Iter',
                              metric_period = 50,
@@ -62,6 +66,11 @@ cb_model = CatBoostRegressor(iterations=1500,
 grid_search_result = cb_model.grid_search(grid, 
                                        X=X_train, 
                                        y=y_train, 
-                                       plot=True)
+                                       plot=True, cv=TimeSeriesSplit())
+
+cb_model.save_model("modelo_catboost_otimizado",
+           format="cbm",
+           export_parameters=None,
+           pool=None)
 
 print(grid_search_result)
